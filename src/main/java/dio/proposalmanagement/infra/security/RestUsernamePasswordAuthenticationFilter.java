@@ -1,7 +1,9 @@
 package dio.proposalmanagement.infra.security;
 
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.core.Authentication;
@@ -20,9 +22,13 @@ public class RestUsernamePasswordAuthenticationFilter extends UsernamePasswordAu
                                                   ObjectMapper objectMapper) {
     super(authenticationConfiguration.getAuthenticationManager());
     this.objectMapper = objectMapper;
-    setFilterProcessesUrl("/api/auth/login"); // Set the login endpoint # after habilitar o formLogin() no SecurityConfig, o endpoint de login passa a ser /login, então precisamos configurar o filtro para processar as requisições nesse endpoint
-    setAuthenticationSuccessHandler((request, response, authentication) ->
-        response.setStatus(HttpServletResponse.SC_OK)); // Return 200 OK on successful authentication
+    setFilterProcessesUrl("/api/auth/login");
+    setAuthenticationSuccessHandler((request, response, authentication) -> {
+      // A sessão é criada automaticamente pelo Spring Security
+      // Aqui apenas retornamos 200 OK
+      response.setStatus(HttpServletResponse.SC_OK);
+      response.getWriter().flush();
+    });
   }
 
   @Override
