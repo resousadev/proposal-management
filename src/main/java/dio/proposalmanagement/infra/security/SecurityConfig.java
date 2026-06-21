@@ -1,4 +1,4 @@
-package dio.proposalmanagement.infra;
+package dio.proposalmanagement.infra.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -6,6 +6,8 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -13,6 +15,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 
 @Configuration
 @EnableWebSecurity
@@ -20,12 +24,20 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
   @Bean
-  SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+  SecurityFilterChain filterChain(HttpSecurity http,
+                                  RestUsernamePasswordAuthenticationFilter restUsernamePasswordAuthenticationFilter)
+      throws Exception {
     http
-//      .csrf().disable()
-      .authorizeHttpRequests(auth -> auth
+      .csrf(AbstractHttpConfigurer::disable) // Always consult what type of application client will be consuming your API before disabling CSRF
+
+        .securityContext(context -> context.requireExplicitSave(false)) // Don't save the security context in the session after each request
+
+        .authorizeHttpRequests(auth -> auth
+        .requestMatchers("/api/auth/**").permitAll() // Allow unauthenticated access to authentication endpoints
         .anyRequest().authenticated())
-      .formLogin(Customizer.withDefaults());
+
+      .addFilterAt(restUsernamePasswordAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
 
     return http.build();
   }

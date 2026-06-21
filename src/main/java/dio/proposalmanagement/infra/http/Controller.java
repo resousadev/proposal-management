@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.servlet.http.HttpSession;
+
 @RestController
 @RequestMapping()
 public class Controller {
@@ -26,6 +28,14 @@ public class Controller {
   @PreAuthorize("hasRole('BRAND')")
   public String brandEndpoint(@AuthenticationPrincipal UserDetails user) {
     return "Hello, Brand " + user.getUsername();
+  }
+
+  @GetMapping("/session-info")
+  public String sessionInfo(@AuthenticationPrincipal UserDetails user, HttpSession session) {
+    return String.format("User: %s, Session ID: %s, Session Created At: %d",
+        user.getUsername(),
+        session.getId(),
+        session.getCreationTime());
   }
 
 }
