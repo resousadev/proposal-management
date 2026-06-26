@@ -27,7 +27,6 @@ public class RestUsernamePasswordAuthenticationFilter extends UsernamePasswordAu
       // A sessão é criada automaticamente pelo Spring Security
       // Aqui apenas retornamos 200 OK
       response.setStatus(HttpServletResponse.SC_OK);
-      response.getWriter().flush();
     });
   }
 
@@ -38,7 +37,7 @@ public class RestUsernamePasswordAuthenticationFilter extends UsernamePasswordAu
       try {
         LoginRequest loginRequest = objectMapper.readValue(request.getInputStream(), LoginRequest.class);
 
-        var authToken = new UsernamePasswordAuthenticationToken(
+        var authToken = UsernamePasswordAuthenticationToken.unauthenticated(
           loginRequest.username(),
           loginRequest.password()
         );

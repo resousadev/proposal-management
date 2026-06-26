@@ -38,7 +38,6 @@ public class SecurityConfig {
 
       .addFilterAt(restUsernamePasswordAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
-
     return http.build();
   }
 
